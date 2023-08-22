@@ -1,5 +1,6 @@
 import numpy as np
 import seaborn as sns
+import utils
 
 def analyse_at_point(ax,runs1, eps=0.05, nsig = 50, nbins = 101, legend = True):
     values1 = np.array([r1['primal'] for r1 in runs1])
@@ -9,12 +10,24 @@ def analyse_at_point(ax,runs1, eps=0.05, nsig = 50, nbins = 101, legend = True):
     dlogp = np.array([r['dlogp'] for r in runs1])
     numeric = np.array([r['grad_dict']['numeric'] for r in runs1])
     score_baseline = score_grads1 - dlogp*values1.mean()
-    
+
+
+    print(f'stad {stad_grads1.mean():.2f},{stad_grads1.std():.2f}')
+    print(f'scorb {score_baseline.mean():.2f},{score_baseline.std():.2f}')
+    print(f'score {score_grads1.mean():.2f},{score_grads1.std():.2f}')
+    print(f'numeric {numeric.mean():.2f},{numeric.std():.2f}')
+    print('----')
     ax = sns.boxplot(ax = ax, data = np.column_stack(
         [stad_grads1,score_baseline, score_grads1, numeric]), orient = 'v', fliersize=1, meanline=True, showmeans=True,
-        meanprops = {'c': 'k'}
+        meanprops = {'c': 'k'},
+        palette = [
+            utils.COLORS['stad'],
+            utils.COLORS['scorebase'],
+            utils.COLORS['score'],
+            utils.COLORS['numeric'],
+        ]
     )
-    ax.axhline(stad_grads1.mean(), c = 'k')
+    # ax.axhline(stad_grads1.mean(), c = 'k')
 
 
     
