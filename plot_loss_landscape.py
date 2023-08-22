@@ -4,14 +4,8 @@ import pandas as pd
 import utils
 import numpy as np
 
-COLORS = {
-    'stad': 'maroon',
-    'scorebase': 'darkorange',
-    'numeric': 'forestgreen',
-    'score': 'steelblue'
-}
 
-def plot_loss_landscape_primal(ax, numeric_fit, par_vals, primal_list_m, primal_list,score_m, score_list, score_baseline_m, stad_m, numeric_m):
+def plot_loss_landscape_primal(ax, numeric_fit, par_vals, primal_list):
     Nscan,NMC = primal_list.shape
     print(primal_list.shape)
 
@@ -21,12 +15,12 @@ def plot_loss_landscape_primal(ax, numeric_fit, par_vals, primal_list_m, primal_
 
     # ax.scatter(par_vals, primal_list_m, label = 'primal mean')
 
-    mean, mean_q = array_mean_and_quantiles(primal_list)
+    mean, mean_q = utils.array_mean_and_quantiles(primal_list, window = 1)
 
-    ax.fill_between(par_vals,mean_q[0],mean_q[2], facecolor = 'steelblue', alpha = 0.5)
-    ax.plot(par_vals,mean, label = 'primal median', c = 'steelblue')
+    ax.plot(par_vals,np.array([mean_q[0],mean_q[2]]).T, color = 'k', alpha = 0.5)
+    ax.plot(par_vals,mean, label = 'primal median', c = 'k')
 
-    ax.plot(par_vals, numeric_fit(par_vals), color='k', label = 'poly. fit', linestyle = 'dashed')
+    ax.plot(par_vals, numeric_fit(par_vals), color='maroon', label = 'poly. fit', linestyle = 'dashed')
     ax.axhline(0.0, c = 'k')
     ax.set_xlim(0.0,4.1)
     ax.set_ylim(-0.2,10)
@@ -46,22 +40,24 @@ def plot_loss_landscape_gradients(
 
     grad_from_fit = numeric_fit.deriv()
 
-    stad_mean, stad_q = utils.array_mean_and_quantiles(stad_list)
-    scob_mean, scob_q = utils.array_mean_and_quantiles(score_baseline_list)
-    scor_mean, scor_q = utils.array_mean_and_quantiles(score_list)
-    numr_mean, numr_q = utils.array_mean_and_quantiles(numeric_list)
+    w = 1
+    stad_mean, stad_q = utils.array_mean_and_quantiles(stad_list, window = w)
+    scob_mean, scob_q = utils.array_mean_and_quantiles(score_baseline_list, window = w)
+    scor_mean, scor_q = utils.array_mean_and_quantiles(score_list, window = w)
+    numr_mean, numr_q = utils.array_mean_and_quantiles(numeric_list, window = w)
 
-    ax.plot(par_vals, numr_mean, label = 'Numeric', color = COLORS['numeric'])
-    ax.fill_between(par_vals,numr_q[0],numr_q[2], alpha = 0.2, facecolor = COLORS['numeric'])
+    ax.plot(par_vals, numr_mean, label = 'Numeric', color = utils.COLORS['numeric'], linestyle = 'dashed')
+    ax.plot(par_vals,np.array([numr_q[0],numr_q[2]]).T, alpha = 1.0, color = utils.COLORS['numeric'])
 
-    ax.plot(par_vals, stad_mean, label = 'STAD', color = COLORS['stad'])
-    ax.fill_between(par_vals,stad_q[0],stad_q[2], alpha = 0.2, facecolor = COLORS['stad'])
+    ax.plot(par_vals, stad_mean, label = 'StochAD', color = utils.COLORS['stad'], linestyle = 'dashed')
+    ax.plot(par_vals,np.array([stad_q[0],stad_q[2]]).T, alpha = 1.0, color = utils.COLORS['stad'])
 
-    ax.plot(par_vals, scob_mean, label = 'SCOB', color = COLORS['scorebase'])
-    ax.fill_between(par_vals,scob_q[0],scob_q[2], alpha = 0.2, facecolor = COLORS['scorebase'])
+    ax.plot(par_vals, stad_mean, label = 'SCORB', color = utils.COLORS['scorebase'], linestyle = 'dashed')
+    ax.plot(par_vals,np.array([scob_q[0],scob_q[2]]).T, alpha = 1.0, color = utils.COLORS['scorebase'])
 
-    ax.plot(par_vals, scor_mean, label = 'SCORE', color = COLORS['score'])
-    ax.fill_between(par_vals,scor_q[0],scor_q[2], alpha = 0.2, facecolor = COLORS['score'])
+    ax.plot(par_vals, scor_mean, label = 'SCORE', color = utils.COLORS['score'], linestyle = 'dashed')
+    ax.plot(par_vals,np.array([scor_q[0],scor_q[2]]).T, alpha = 1.0, color = utils.COLORS['score'])
+
 
     ax.plot(
         par_vals, grad_from_fit(par_vals), color='black', linestyle = 'dashed',

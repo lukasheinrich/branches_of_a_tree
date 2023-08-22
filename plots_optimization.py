@@ -32,7 +32,7 @@ def plot_optimization_comparison(
     n = utils.array_mean_and_quantiles(l_n_list.T)
     sb = utils.array_mean_and_quantiles(l_sb_list.T)
 
-    xrange = np.arange(100)
+    xrange = np.arange(500)
     ax.plot(xrange,n[0],c = utils.COLORS['numeric'], label = 'numeric')
     ax.fill_between(xrange,n[1][0],n[1][2], facecolor = utils.COLORS['numeric'], alpha = 0.2)
 
@@ -46,8 +46,6 @@ def plot_optimization_comparison(
     ax.fill_between(xrange,st[1][0],st[1][2], facecolor = utils.COLORS['stad'], alpha = 0.2)
 
 
-    ax.set_ylim(1.5,5.0)
-    ax.set_xlim(0,90)
     ax.set_ylabel('Loss')
     ax.set_xlabel('Steps')
     ax.set_title('Design Optimization')
