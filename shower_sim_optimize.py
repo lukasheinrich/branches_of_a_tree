@@ -3,14 +3,14 @@ import tqdm
 import optax
 import jax.numpy as jnp
 
-def program_to_optimize(simulator, objective):
+def program_to_optimize(simulator, objective, sim_kwargs):
     def program_for_optimizer(theta, grad_type = "stad", eps=0.01, keep_all_grads=False):
         
         if grad_type not in ["stad","score","numeric"]:
             print("grad_type=",grad_type,"not recognized")
             return None
         
-        hits,active,history,scores,out_st = simulator(theta)
+        hits,active,history,scores,out_st = simulator(theta, **sim_kwargs)
         primal = objective(active)
         
         grad_dict={}
@@ -23,7 +23,7 @@ def program_to_optimize(simulator, objective):
             grad_dict["score"] = scores*primal
         
         if grad_type == "numeric" or keep_all_grads:
-            _,active2,_,_,_ = simulator(theta+eps)
+            _,active2,_,_,_ = simulator(theta+eps, **sim_kwargs)
             primal2 = objective(active2)
             grad_dict["numeric"] = (primal2 - primal) / eps
         
